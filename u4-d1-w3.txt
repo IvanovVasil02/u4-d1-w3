@@ -1,0 +1,51 @@
+1)Estrarre nome e cognome dei clienti nati nel 1982: 
+-SELECT first_name, last_name
+	FROM public.client WHERE date_part('year', birth_date) = '1982';
+
+---------------------------------------------------------------------------------------------	
+2)Estrarre il numero delle fature con iva al 20%
+-SELECT id, typolgy, amount, invoice_date, supplier_id, iva
+	FROM public.invoices WHERE iva = '20';
+
+---------------------------------------------------------------------------------------------
+3)Riportare il numero di fatture e la somma dei relativi importi divisi per anno di fatturazione
+-SELECT date_part('year', invoice_date), count(*), sum(amount)
+	FROM public.invoices group by date_part('year', invoice_date);
+
+------------------------------------------------------------------------------------------	
+4)Estrarre i prodotti attivati nel 2017 e che sono in pruduzione oppure in commercio
+-SELECT id, description, in_production, in_commerce, activation_date, descaticvation_date
+		FROM public.products WHERE date_part('year', activation_date) = 2017 and in_production= true and in_commerce= true;
+
+-------------------------------------------------------------------------------------------------------------------------
+5)Considerando soltanto le fatture con Iva 20%, estrarre il numero di fatture per ogni anno
+-SELECT date_part('year', invoice_date), count(*)
+	FROM public.invoices where iva= '20' group by date_part('year', invoice_date);
+
+------------------------------------------------------------------------------------------------------------
+6)Estrarre gli anni in cui sono state registrate più di due fatture di tipologia A 
+SELECT date_part('year', invoice_date)
+	FROM public.invoices where typolgy= 'A' group by (date_part('year', invoice_date))
+		having count(*) > 2;
+
+-----------------------------------------------------------------------------------------------------------------------------
+7)Riporta l'elenco delle fatture(numero, importo, iva e data) con in aggiunta il nome del fornitoreù
+SELECT invoices.id, amount, iva, invoice_date, denomination FROM public.invoices invoices left join 
+public.suppliers suppliers on invoices.supplier_id = supplier.id;
+
+----------------------------------------------------------------------------------------------------------------------
+8)Estrarre il totale degli importi delle fatture divisi per residenza dei clienti;
+Select residence_region, sum(amount)
+from invoices join client c on client_id = c.id group by residence_region;
+
+--------------------------------------------------------------------------------------------------------------------
+9)Estrarre il numero dei clienti nati nel 1980 che hanno almeno una fattura superiore a 50 euro);
+SELECT first_name
+	FROM public.client c join invoices i on c.id = i.client_id 
+	where date_part('year', birth_date)= '1980' and amount> 50  group by c.id;
+
+-------------------------------------------------------------------------------------------------------------------
+10)Estrarre una colonna di nome "Denominazione" contenente il nome, seguito da un carattere "-", seguito dal cognome
+per i soli clienti residenti nella regione Lombardia.
+SELECT concat(first_name,'-', last_name) from public.client 
+where residence_region = 'Lombardia';
